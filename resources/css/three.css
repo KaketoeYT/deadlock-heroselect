@@ -1,0 +1,53 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Inter, sans-serif;
+    background: black;
+    color: white;
+    overflow: hidden;
+}
+
+/* Container voor 3D scene */
+#scene-container {
+    position: fixed;
+    inset: 1;
+    z-index: 1;
+}
+
+.scene-bg {
+    position: relative;
+    z-index: -1;
+    width: 100vw;
+    height: 100vh;
+}
+
+.character-bg {
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    right: 0;
+
+    img {
+        height: 100vh;
+    }
+}
+
+/* UI overlay bovenop Three.js */
+.hero-info {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 10;
+}
+
+.hero-name {
+    padding-right: 9em;
+    svg {
+        width: 30em;
+    }
+}

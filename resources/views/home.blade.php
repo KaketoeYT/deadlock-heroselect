@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hero Select</title>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/three.css'])
+</head>
+<body>
+
+    <!-- Three.js canvas container -->
+    <div id="scene-container"></div>
+
+    <div class="scene-bg">
+        <video id="background-video" autoplay muted loop>
+            <source src="/resources/videos/roster_bg_loop.webm" type="video/webm">
+        </video>
+    </div>
+
+    <div class="character-bg">
+        <img src="/resources/images/mina_bg_psd.png" alt="">
+    </div>
+
+    <!-- hero information (name,abilities,etc) -->
+    <div class="hero-info">
+
+        <div class="hero-name">
+            <svg viewBox="0 0 1947 861" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_23116_36)">
+                <path d="M659.732 30.2209H478.207L355.742 453.709L226.561 30.2209H0L40.295 75.8486V516.126L0 561.556H157.822L91.8489 502.497V185.869L287.003 811.224L470.701 188.831V516.126L430.406 561.556H659.732L619.437 516.126V75.8486L659.732 30.2209Z" fill="white"/>
+                <path d="M891.231 30.2209H662.102L702.2 75.8486V516.126L662.102 561.556H891.231L851.134 516.126V75.8486L891.231 30.2209Z" fill="white"/>
+                <path d="M1311.96 30.2209L1377.93 89.4777V457.857L1119.37 30.2209H914.144L954.439 75.8486V516.126L914.144 561.556H1072.16L1005.99 502.497V223.003L1425.14 861L1429.68 593.555V75.8486L1469.78 30.2209H1311.96Z" fill="white"/>
+                <path d="M1902.36 526.002L1648.74 0H1644.19L1452 408.476H1685.28L1737.62 522.249L1696.54 567.877H1947L1902.16 526.2L1902.36 526.002ZM1521.93 365.219L1594.81 207.991L1666.12 365.219H1521.93Z" fill="white"/>
+                </g>
+                <defs>
+                <clipPath id="clip0_23116_36">
+                <rect width="1947" height="861" fill="white"/>
+                </clipPath>
+                </defs>
+            </svg>
+        </div>
+    </div>
+
+
+    <!-- Scripts -->
+    <script>
+        const video = document.getElementById('background-video');
+        video.playbackRate = 0.3;
+    </script>
+</body>
+</html>

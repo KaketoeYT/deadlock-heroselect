@@ -18,14 +18,14 @@ const scene = new THREE.Scene();
 
 // PerspectiveCamera(fov, aspect, near, far)
 const camera = new THREE.PerspectiveCamera(
-	75,
+	80,
 	window.innerWidth / window.innerHeight,
 	0.1,
 	1000
 );
 
 // Zet camera iets naar achter en omhoog
-camera.position.set(1, 1.5, 1.5);
+camera.position.set(3,2,0);
 
 
 // ====================
@@ -77,14 +77,86 @@ scene.add(ambient);
 
 const loader = new GLTFLoader();
 
-// Laad het 3D model uit public/models/
-loader.load('/resources/models/mina_test.glb', function (gltf) {
+// Cache for loaded GLTF originals (not mounted into scene)
+const modelCache = new Map();
+let currentModel = null;
 
-	const model = gltf.scene;
+// Helper: dispose a model that was added to the scene
+function disposeModel(root) {
+	root.traverse((child) => {
+		if (child.isMesh) {
+			if (child.geometry) child.geometry.dispose();
+			if (child.material) {
+				if (Array.isArray(child.material)) {
+					child.material.forEach(m => m.dispose());
+				} else {
+					child.material.dispose();
+				}
+			}
+		}
+	});
+	scene.remove(root);
+}
 
-	scene.add(model); // voeg model toe aan de scene
+// Load (and cache) a model original without adding to scene. Returns a Promise
+function loadAndCacheModel(heroName) {
+	if (modelCache.has(heroName)) return Promise.resolve(modelCache.get(heroName));
 
-});
+	const path = `/resources/models/${heroName}.glb`;
+	return new Promise((resolve, reject) => {
+		loader.load(path, (gltf) => {
+			modelCache.set(heroName, gltf.scene);
+			resolve(gltf.scene);
+		}, undefined, (err) => {
+			reject(err);
+		});
+	});
+}
+
+// Preload multiple models (array of hero names)
+window.preloadHeroModels = function(names) {
+	const uniques = [...new Set(names)];
+	return Promise.all(uniques.map(n => loadAndCacheModel(n).catch(err => {
+		console.warn('Preload failed for', n, err);
+		return null;
+	})));
+};
+
+// Load a hero model by name (uses cache if available). Clones cached original for fast add.
+window.loadHeroModel = async function(heroName) {
+	try {
+		let original = modelCache.get(heroName);
+		if (!original) {
+			original = await loadAndCacheModel(heroName);
+		}
+
+		// Remove previous model
+		if (currentModel) {
+			disposeModel(currentModel);
+			currentModel = null;
+		}
+
+		// Clone original for the scene so cache remains untouched
+		let clone;
+		try {
+			const mod = await import('three/examples/jsm/utils/SkeletonUtils.js');
+			const SU = mod.SkeletonUtils || mod.default || mod;
+			clone = SU.clone(original);
+		} catch (e) {
+			console.warn('SkeletonUtils import failed, falling back to Object3D.clone', e);
+			clone = original.clone(true);
+		}
+		clone.position.set(1, -0.5, -1.5);
+		clone.rotation.set(0, Math.PI / 2, 0);
+		scene.add(clone);
+		currentModel = clone;
+	} catch (err) {
+		console.error('Error loading model:', err);
+	}
+};
+
+// Initial model (preload abrams then display)
+loadAndCacheModel('abrams').then(() => window.loadHeroModel('abrams')).catch(err => console.error(err));
 
 
 // ====================

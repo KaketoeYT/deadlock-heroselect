@@ -1,4 +1,6 @@
-/* Reset */
+/* ============================= */
+/* RESET */
+/* ============================= */
 * {
     margin: 0;
     padding: 0;
@@ -12,7 +14,9 @@ body {
     overflow: hidden;
 }
 
-/* Container voor 3D scene */
+/* ============================= */
+/* SCENE LAYERS */
+/* ============================= */
 #scene-container {
     position: fixed;
     inset: 1;
@@ -26,18 +30,33 @@ body {
     height: 100vh;
 }
 
-.character-bg {
+.character-bg,
+.hero-bg-image {
     position: absolute;
-    z-index: 0;
-    top: 0;
-    right: 0;
-
-    img {
-        height: 100vh;
-    }
+    inset: 0;
 }
 
-/* UI overlay bovenop Three.js */
+.character-bg {
+    z-index: 0;
+    overflow: hidden;
+}
+
+.hero-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 400ms ease-in-out;
+    pointer-events: none;
+}
+
+.hero-bg-image.active {
+    opacity: 1;
+}
+
+/* ============================= */
+/* UI OVERLAY */
+/* ============================= */
 .hero-info {
     position: absolute;
     bottom: 0;
@@ -46,35 +65,51 @@ body {
 }
 
 .hero-name {
+    position: relative;
+    display: grid;
+    align-items: end;
     padding-right: 9em;
-    svg {
-        width: 30em;
-    }
 }
 
+.hero-name svg {
+    width: 30em;
+}
+
+.hero-title {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transition: opacity 50ms ease-in-out;
+    pointer-events: none;
+}
+
+.hero-title.active {
+    opacity: 1;
+}
+
+/* ============================= */
+/* GRID */
+/* ============================= */
 .grid-wrapper {
     position: absolute;
     top: 0;
     left: 60px;
-    width: auto;
     height: 95%;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    z-index: 10;
-
     align-content: center;
     gap: 5px;
+    z-index: 10;
+}
 
-    img {
-        width: 5rem;
-        height: auto;
+.grid-wrapper img {
+    width: 5rem;
+    height: auto;
+    background: #353535;
+    border: 4px solid #353535;
+    border-radius: 2px;
+    transition: transform 0.2s ease;
+}
 
-        background: #353535;
-        border: 4px solid #353535;
-        border-radius: 2px;
-    }
-
-    img:hover {
-        scale: 1.15;
-    }
+.grid-wrapper img:hover {
+    transform: scale(1.15);
 }

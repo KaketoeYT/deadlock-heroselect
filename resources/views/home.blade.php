@@ -18,25 +18,37 @@
         </video>
     </div>
 
-    <!-- Hero specific background -->
-    <div class="character-bg">
-        <img id="hero-bg" src="/resources/images/backgrounds/abrams_bg_psd.png" alt="">
-    </div>
-
     <!-- Hero Grid -->
     <div class="grid-wrapper">
         @foreach ($heroes as $hero)
-
-        <img src="/resources/images/faces/{{ $hero->name }}_vertical_psd.png" alt="{{ $hero->name }}">
-
+            <img 
+                src="/resources/images/faces/{{ $hero->name }}_vertical_psd.png" 
+                alt="{{ $hero->name }}"
+            >
         @endforeach
     </div>
 
     <!-- hero information (name,abilities,etc) -->
     <div class="hero-info">
         <div class="hero-name">
-            <?php require('resources/title/abrams_title.svg') ?>
+            @foreach ($heroes as $hero)
+                <div class="hero-title" data-hero="{{ $hero->name }}">
+                    <?php require("resources/title/{$hero->name}_title.svg"); ?>
+                </div>
+            @endforeach
         </div>
+    </div>
+
+    <!-- Hero specific background -->
+    <div class="character-bg">
+        @foreach ($heroes as $hero)
+            <img 
+                class="hero-bg-image"
+                data-hero="{{ $hero->name }}"
+                src="/resources/images/backgrounds/{{ $hero->name }}_bg_psd.png"
+                alt="{{ $hero->name }}"
+            >
+        @endforeach
     </div>
 
 
@@ -50,51 +62,56 @@
     <!-- hovering over a heroes icon replaces title with that heroes name -->
     <script>
         const heroIcons = document.querySelectorAll('.grid-wrapper img');
+        const bgImages = document.querySelectorAll('.hero-bg-image');
+        const heroTitles = document.querySelectorAll('.hero-title');
 
-        const heroBackground = document.getElementById('hero-bg');
-        const heroNameElement = document.querySelector('.hero-name');
+        let currentHero = null;
+        let hoverTimer = null;
 
-        // Preload all hero models for faster switching (if available)
-        const heroNames = Array.from(heroIcons).map(i => i.getAttribute('alt'));
-        if (typeof window.preloadHeroModels === 'function') {
-            window.preloadHeroModels(heroNames).catch(() => {});
-        } else {
-            window.addEventListener('load', () => {
-                if (typeof window.preloadHeroModels === 'function') {
-                    window.preloadHeroModels(heroNames).catch(() => {});
-                }
-            });
+        function showHero(heroName) {
+
+            if (currentHero === heroName) return;
+
+            // Remove active from everything
+            bgImages.forEach(bg => bg.classList.remove('active'));
+            heroTitles.forEach(title => title.classList.remove('active'));
+
+            // Activate selected hero
+            const activeBg = document.querySelector(`.hero-bg-image[data-hero="${heroName}"]`);
+            const activeTitle = document.querySelector(`.hero-title[data-hero="${heroName}"]`);
+
+            if (activeBg) activeBg.classList.add('active');
+            if (activeTitle) activeTitle.classList.add('active');
+
+            // Switch 3D model
+            if (typeof window.loadHeroModel === 'function') {
+                window.loadHeroModel(heroName);
+            }
+
+            currentHero = heroName;
         }
 
         heroIcons.forEach(icon => {
             icon.addEventListener('mouseenter', () => {
                 const heroName = icon.getAttribute('alt');
 
-                heroBackground.src = `/resources/images/backgrounds/${heroName}_bg_psd.png`;
-
-                // Fetch and load the corresponding SVG file from resources/title
-                fetch(`/resources/title/${heroName}_title.svg`)
-                    .then(response => {
-                        if (!response.ok) throw new Error('SVG not found');
-                        return response.text();
-                    })
-                    .then(svgContent => {
-                        heroNameElement.innerHTML = svgContent;
-                    })
-                    .catch(error => {
-                        console.error('Error loading SVG:', error);
-                        // Keep the old title if new one couldnt be loaded
-                    });
-
-                // Switch 3D model if the loader is available
-                if (typeof window.loadHeroModel === 'function') {
-                    try {
-                        window.loadHeroModel(heroName);
-                    } catch (err) {
-                        console.error('Error switching 3D model:', err);
-                    }
-                }
+                // Start 0.25s delay
+                hoverTimer = setTimeout(() => {
+                    showHero(heroName);
+                }, 250);
             });
+
+            icon.addEventListener('mouseleave', () => {
+                // Cancel if user leaves before the delay is up
+                clearTimeout(hoverTimer);
+            });
+        });
+
+        // Show first hero on load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (heroIcons.length > 0) {
+                showHero(heroIcons[0].getAttribute('alt'));
+            }
         });
     </script>
 </body>
